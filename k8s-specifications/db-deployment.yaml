@@ -1,3 +1,16 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+   name: postgres-data
+   annotations:
+     volume.beta.kubernetes.io/storage-class: px-sc
+spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 2Gi
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -9,6 +22,7 @@ spec:
       labels:
         app: db
     spec:
+      schedulerName: stork
       containers:
       - image: postgres:9.4
         name: db
@@ -17,4 +31,5 @@ spec:
           name: db-data
       volumes:
       - name: db-data
-        emptyDir: {} 
+        persistentVolumeClaim:
+          claimName: postgres-data
